@@ -1,0 +1,27 @@
+name = Stanford Sites Jumpstart Personal
+distribution_name = Stanford Jumpstart Personal
+description = Stanford Sites Jumpstart Personal installation profile.
+core = 7.x
+version = 7.x-1.0-beta1
+
+; Profile Module Requirements.
+; Include at least one dependency to avoid installation php errors as core
+; expects you to have something defined even if all the parents have defined
+; the modules you need.
+dependencies[] = "node"
+
+; Prohibit parent profiles from installing these modules. This will prevent the
+; modules listed in dependencies[] only and not the ones in install tasks.
+prohibit[] = stanford_wysiwyg
+prohibit[] = toolbar
+
+; Include files. This is super important as the installation autoloader.php will
+; load these files when this profile is being used as a parent profile as well
+; the default profile to be installed. There are some parts of the installation
+; process where not all resources are available and this will prevent that.
+files[] = includes/JumpstartSitesPersonal.php
+files[] = stanford_sites_jumpstart_personal.profile
+files[] = stanford_sites_jumpstart_personal.install
+
+; Base profile definition. This is how you declare to use other parent profiles.
+base = stanford_sites_jumpstart
