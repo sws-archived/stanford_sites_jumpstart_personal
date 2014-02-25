@@ -2,18 +2,28 @@ name = Stanford Sites Jumpstart Personal
 distribution_name = Stanford Jumpstart Personal
 description = Stanford Sites Jumpstart Personal installation profile.
 core = 7.x
-version = 7.x-1.0-beta1
+version = 7.x-1.x-dev
 
 ; Profile Module Requirements.
 ; Include at least one dependency to avoid installation php errors as core
 ; expects you to have something defined even if all the parents have defined
 ; the modules you need.
 dependencies[] = "node"
+dependencies[] = stanford_personal
+dependencies[] = stanford_personal_layouts
+dependencies[] = stanford_personal_roles
+dependencies[] = stanford_personal_shortcuts
+
 
 ; Prohibit parent profiles from installing these modules. This will prevent the
 ; modules listed in dependencies[] only and not the ones in install tasks.
 prohibit[] = stanford_wysiwyg
 prohibit[] = toolbar
+prohibit[] = stanford_jumpstart
+prohibit[] = stanford_jumpstart_shortcuts
+prohibit[] = stanford_jumpstart_wysiwyg
+prohibit[] = stanford_jumpstart_layouts
+prohibit[] = stanford_jumpstart_roles
 
 ; Include files. This is super important as the installation autoloader.php will
 ; load these files when this profile is being used as a parent profile as well
