@@ -28,6 +28,12 @@ class JumpstartSitesPersonal extends JumpstartSites {
     // want from there.
     $parent_tasks = parent::get_install_tasks($install_state);
 
+
+    // Remove some parent tasks.
+    // Jumpstart adds content to the site that is different from Stanford Sites Personal. Let's
+    // disable those modules and add in only the ones we want again.
+    unset($parent_tasks['JumpstartSites_stanford_sites_jumpstart_enable_modules']);
+
     // Sample task declaration differs from the normal task api slightly.
     $tasks['stanford_sites_jumpstart_sub_example'] = array(
       'display_name' => st('My Profile Install Task'),
