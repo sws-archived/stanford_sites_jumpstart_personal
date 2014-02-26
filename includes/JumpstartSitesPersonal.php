@@ -28,6 +28,12 @@ class JumpstartSitesPersonal extends JumpstartSites {
     // want from there.
     $parent_tasks = parent::get_install_tasks($install_state);
 
+
+    // Remove some parent tasks.
+    // Jumpstart adds content to the site that is different from Stanford Sites Personal. Let's
+    // disable those modules and add in only the ones we want again.
+    unset($parent_tasks['JumpstartSites_stanford_sites_jumpstart_enable_modules']);
+
     // Sample task declaration differs from the normal task api slightly.
     $tasks['stanford_sites_jumpstart_personal_install'] = array(
       'display_name' => st('My Profile Install Task'),
@@ -99,6 +105,10 @@ class JumpstartSitesPersonal extends JumpstartSites {
     // registry and paths as they may not be available or correct. To ensure
     // some normallity it may be useful to flush all the caches first.
 
+    // Set variables.
+    $requester_name = variable_get('stanford_sites_requester_name', NULL);
+    variable_set('site_name', $requester_name);
+
   }
 
   /**
@@ -131,7 +141,7 @@ class JumpstartSitesPersonal extends JumpstartSites {
       'stanford_page',
     );
 
-    // Content Pull.
+    // Vocab Pull.
     $importer = new SitesContentImporter();
     $importer->set_endpoint($endpoint);
     $importer->import_vocabulary_trees();
