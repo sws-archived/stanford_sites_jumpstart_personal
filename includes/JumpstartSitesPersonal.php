@@ -133,9 +133,9 @@ class JumpstartSitesPersonal extends JumpstartSites {
     $library_path .= "/SitesContentImporter.php";
     include_once $library_path;
 
-    $restrict = array(
-      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
-    );
+    // $restrict = array(
+    //   '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
+    // );
 
     $content_types = array(
       'stanford_page',
@@ -146,11 +146,24 @@ class JumpstartSitesPersonal extends JumpstartSites {
     $importer->set_endpoint($endpoint);
     $importer->import_vocabulary_trees();
 
-    // Content Pull.
-    $importer->add_import_content_type($content_types);
-    $importer->add_uuid_restrictions($restrict);
-    $importer->importer_content_nodes_recent_by_type();
+    // Bean Pull.
+    $uuids = array(
+      '2066e872-9547-40be-9342-dbfb81248589', // Jumpstart Footer Social Media Connect Block
+      'd6312ea0-d128-4805-ad0e-fa712aa1ac40', // Stanford Personal Node Edit Help Block
+      'a0188c23-cd48-4886-a1a1-15d198e5329d', // Stanford Personal Footer Block
+      'd08151ab-2808-4569-9e9a-e977c2ba57c4', // Stanford Personal Sidebar Block
+    );
 
+    $importer->set_bean_uuids($uuids);
+    $importer->import_content_beans();
+
+    // Content Pull.
+    $filters = array('sites_products' => array('37'));
+    $view_importer = new SitesContentImporterViews();
+    $view_importer->set_endpoint($endpoint);
+    $view_importer->set_resource('content');
+    $view_importer->set_filters($filters);
+    $view_importer->import_content_by_views_and_filters();
 
   }
 
