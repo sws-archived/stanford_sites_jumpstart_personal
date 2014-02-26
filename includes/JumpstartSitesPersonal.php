@@ -101,7 +101,8 @@ class JumpstartSitesPersonal extends JumpstartSites {
     module_load_all();
 
     // Set variables.
-    variable_set('site_name', "EXTRA EXTRA COOL!!!!");
+    $requester_name = variable_get('stanford_sites_requester_name', NULL);
+    variable_set('site_name', $requester_name);
 
     // Enable modules.
     module_enable(array('my_custom_module'));
