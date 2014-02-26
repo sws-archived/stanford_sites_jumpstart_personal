@@ -13,6 +13,7 @@ dependencies[] = stanford_personal
 dependencies[] = stanford_personal_layouts
 dependencies[] = stanford_personal_roles
 dependencies[] = stanford_personal_shortcuts
+dependencies[] = uuid
 
 
 ; Prohibit parent profiles from installing these modules. This will prevent the

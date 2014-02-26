@@ -109,18 +109,18 @@ class JumpstartSitesPersonal extends JumpstartSites {
   public function import_content(&$install_state) {
 
     // Content Server
-    $endpoint = 'http://sites.stanford.edu/jsa-content';
+    $endpoint = 'https://sites.stanford.edu/jsa-content/jsainstall';
 
     // Try to use libraries module if available to find the path.
     if (function_exists('libraries_get_path')) {
-      $library_path = libraries_get_path('stanford_sites_content_importer');
+      $library_path = DRUPAL_ROOT . '/' . libraries_get_path('stanford_sites_content_importer');
     }
 
     if (!drupal_valid_path($library_path)) {
-      $library_path = DRUPAL_ROOT . 'sites/all/libraries/stanford_sites_content_importer/';
+      $library_path = DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer';
     }
 
-    $library_path .= "SitesContentImporter.php";
+    $library_path .= "/SitesContentImporter.php";
     include_once $library_path;
 
     $restrict = array(
