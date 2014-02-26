@@ -29,11 +29,19 @@ class JumpstartSitesPersonal extends JumpstartSites {
     $parent_tasks = parent::get_install_tasks($install_state);
 
     // Sample task declaration differs from the normal task api slightly.
-    $tasks['stanford_sites_jumpstart_sub_example'] = array(
+    $tasks['stanford_sites_jumpstart_personal_install'] = array(
       'display_name' => st('My Profile Install Task'),
       'display' => TRUE,
       'type' => 'normal',
       'function' => 'install', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
+    $tasks['stanford_sites_jumpstart_personal_import_content'] = array(
+      'display_name' => st('Import Content'),
+      'display' => TRUE,
+      'type' => 'normal',
+      'function' => 'import_content', // The name of the method in this class to run.
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
@@ -61,20 +69,20 @@ class JumpstartSitesPersonal extends JumpstartSites {
     $form = parent::get_config_form($form, $form_state);
 
     // Add your own fields.
-    $form['stanford_sites_jumpstart_sub_example'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'My Profile Configuration',
-      '#description' => 'My Profile Configuration Options.',
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-    );
+    // $form['stanford_sites_jumpstart_sub_example'] = array(
+    //   '#type' => 'fieldset',
+    //   '#title' => 'My Profile Configuration',
+    //   '#description' => 'My Profile Configuration Options.',
+    //   '#collapsible' => TRUE,
+    //   '#collapsed' => FALSE,
+    // );
 
-    $form['stanford_sites_jumpstart_sub_example']['myvalue'] = array(
-      '#type' => 'textfield',
-      '#title' => 'My Configuration Field',
-      '#description' => 'Please enter some value into this field',
-      '#default_value' => isset($form_state['values']['myvalue']) ? $form_state['values']['myvalue'] : 'default value',
-    );
+    // $form['stanford_sites_jumpstart_sub_example']['myvalue'] = array(
+    //   '#type' => 'textfield',
+    //   '#title' => 'My Configuration Field',
+    //   '#description' => 'Please enter some value into this field',
+    //   '#default_value' => isset($form_state['values']['myvalue']) ? $form_state['values']['myvalue'] : 'default value',
+    // );
 
     // No need to return anything as this is all passed by reference.
   }
@@ -91,14 +99,48 @@ class JumpstartSitesPersonal extends JumpstartSites {
     // registry and paths as they may not be available or correct. To ensure
     // some normallity it may be useful to flush all the caches first.
 
-    drupal_flush_all_caches();
-    module_load_all();
+  }
 
-    // Set variables.
-    variable_set('site_name', "EXTRA EXTRA COOL!!!!");
+  /**
+   * Import content from the content server.
+   * @param  [type] $install_state [description]
+   * @return [type]                [description]
+   */
+  public function import_content(&$install_state) {
 
-    // Enable modules.
-    module_enable(array('my_custom_module'));
+    // Content Server
+    $endpoint = 'http://sites.stanford.edu/jsa-content';
+
+    // Try to use libraries module if available to find the path.
+    if (function_exists('libraries_get_path')) {
+      $library_path = libraries_get_path('stanford_sites_content_importer');
+    }
+
+    if (!drupal_valid_path($library_path)) {
+      $library_path = DRUPAL_ROOT . 'sites/all/libraries/stanford_sites_content_importer/';
+    }
+
+    $library_path .= "SitesContentImporter.php";
+    include_once $library_path;
+
+    $restrict = array(
+      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
+    );
+
+    $content_types = array(
+      'stanford_page',
+    );
+
+    // Content Pull.
+    $importer = new SitesContentImporter();
+    $importer->set_endpoint($endpoint);
+    $importer->import_vocabulary_trees();
+
+    // Content Pull.
+    $importer->add_import_content_type($content_types);
+    $importer->add_uuid_restrictions($restrict);
+    $importer->importer_content_nodes_recent_by_type();
+
 
   }
 
