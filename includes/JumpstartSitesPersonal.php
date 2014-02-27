@@ -109,6 +109,67 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $requester_name = variable_get('stanford_sites_requester_name', NULL);
     variable_set('site_name', $requester_name);
 
+    // Variables.
+    variable_set('theme_default', 'stanford_light');
+    variable_set('admin_theme', 'stanford_seven');
+    variable_set('node_admin_theme', 'stanford_seven');
+    variable_set('webauth_link_text', "SUNetID Login");
+    variable_set('webauth_allow_local', 0);
+
+    // Unset user menu as secondary links.
+    variable_set('menu_secondary_links_source', "");
+
+    // Enable themes.
+    $themes = array(
+      'stanford_framework',
+      'stanford_light',
+      'stanford_seven',
+      'open_framework'
+    );
+
+    theme_enable($themes);
+
+    // This is needed here after enabling themes so that blocks get built into
+    // the blocks table with the new themes.
+    drupal_flush_all_caches();
+
+    // Blocks. Turn em off.
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'webauth')
+    ->condition('delta', 'webauth_login_block')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'system')
+    ->condition('delta', 'navigation')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'search')
+    ->condition('delta', 'form')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'stanford_sites_helper')
+    ->condition('delta', 'firststeps')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'stanford_sites_helper')
+    ->condition('delta', 'helplinks')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'user')
+    ->condition('delta', 'login')
+    ->execute();
+
   }
 
   /**
