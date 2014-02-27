@@ -211,6 +211,21 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     ->condition('delta', 'login')
     ->execute();
 
+    // Install menus.
+    module_load_include('inc', 'menu_import', 'includes/import');
+    $content_path = drupal_get_path('profile', 'stanford_sites_jumpstart_personal') . "/includes/menus/";
+    $options = array(
+      'create_content'  => FALSE,
+      'link_to_content' => TRUE,
+      'remove_menu_items' => TRUE,
+    );
+
+    // Import the menu items.
+    $result = menu_import_file($content_path . 'main-menu-export.txt', 'main-menu', $options);
+
+    // If we are done importing menus then we can disable the module.
+    module_disable(array('menu_import'));
+
   }
 
   /**
