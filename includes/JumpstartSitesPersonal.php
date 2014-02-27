@@ -43,6 +43,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
+    $tasks['stanford_sites_jumpstart_personal_create_users'] = array(
+      'display_name' => st('Create Site Owner'),
+      'display' => FALSE,
+      'type' => 'normal',
+      'function' => 'create_users', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
     $tasks['stanford_sites_jumpstart_personal_import_content'] = array(
       'display_name' => st('Import Content'),
       'display' => TRUE,
@@ -120,6 +128,13 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // Unset user menu as secondary links.
     variable_set('menu_secondary_links_source', "");
 
+    // Temporary until we do something else.
+    variable_set('site_frontpage', 'node/1');
+
+    // This variable is set in the stanford installation profile and causes
+    // havoc when installing through drush. Re-enable later.
+    variable_del('file_private_path');
+
     // Enable themes.
     $themes = array(
       'stanford_framework',
@@ -170,6 +185,47 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     ->condition('module', 'user')
     ->condition('delta', 'login')
     ->execute();
+
+  }
+
+  /**
+   * Creates the user accounts for this install.
+   * @return [type] [description]
+   */
+  public function create_users(&$install_state) {
+
+    $owner_role = user_role_load_by_name('site owner');
+    $sunet_role = user_role_load_by_name('SUNet User');
+
+    // CREATE SITE OWNER USER!
+    // ----------------------------------------------------------
+    $sunet = strtolower(trim($sunetid));
+    $authname = $sunet . '@stanford.edu';
+
+    $account = new stdClass;
+    $account->is_new = TRUE;
+    $account->name = $full_name;
+    $account->pass = user_hash_password(user_password());
+    $account->mail = $authname;
+    $account->init = $authname;
+    $account->status = TRUE;
+    $roles = array(DRUPAL_AUTHENTICATED_RID => TRUE);
+
+    // Add site owner role by default.
+    if ($owner_role) {
+      $roles[$owner_role->rid] = TRUE;
+    }
+
+    // Add sunet role if available.
+    if ($sunet_role) {
+      $roles[$sunet_role->rid] = TRUE;
+    }
+
+    $account->roles = $roles;
+    $account->timezone = variable_get('date_default_timezone', '');
+    $account = user_save($account);
+
+    // ----------------------------------------------------------
 
   }
 
