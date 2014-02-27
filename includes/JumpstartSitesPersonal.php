@@ -73,6 +73,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     // Get all parent profile changes and additions to the configuration form.
     $form = parent::get_config_form($form, $form_state);
+    return $form;
 
     // Add your own fields.
     // $form['stanford_sites_jumpstart_sub_example'] = array(
