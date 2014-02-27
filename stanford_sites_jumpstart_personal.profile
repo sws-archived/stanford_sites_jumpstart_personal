@@ -35,7 +35,8 @@ function stanford_sites_jumpstart_personal_install_tasks_alter(&$tasks, &$instal
  * @return [type]             [description]
  */
 function stanford_sites_jumpstart_personal_form_install_configure_form_alter(&$form, &$form_state) {
-  $profile_name = JumpstartProfile::get_active_profile();
+  $profile_name = JumpstartProfileAbstract::get_active_profile();
   $profile = new $profile_name();
   $form = $profile->get_config_form($form, $form_state);
+  return $form;
 }

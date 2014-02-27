@@ -41,10 +41,16 @@ dependencies[] = stanford_personal
 dependencies[] = stanford_personal_layouts
 dependencies[] = stanford_personal_roles
 dependencies[] = stanford_personal_shortcuts
+dependencies[] = stanford_personal_wysiwyg
 
 ; Prohibit parent profiles from installing these modules. This will prevent the
 ; modules listed in dependencies[] only and not the ones in install tasks.
 prohibit[] = toolbar
+prohibit[] = stanford_wysiwyg
+prohibit[] = comment
+prohibit[] = clone
+prohibit[] = overlay
+prohibit[] = dashboard
 
 
 ; Include files. This is super important as the installation autoloader.php will
