@@ -67,6 +67,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
+    $tasks['stanford_sites_jumpstart_personal_install_block_classes'] = array(
+      'display_name' => st('Install Block Classes'),
+      'display' => FALSE,
+      'type' => 'normal',
+      'function' => 'install_block_classes', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
     // Drupal does some fun things to run install tasks so we have to do some
     // extra work to ensure that they are run. Use this function to process your
     // new tasks. Do not pass in parent tasks as they have already been
@@ -311,6 +319,40 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $view_importer->set_filters($filters);
     $view_importer->import_content_by_views_and_filters();
 
+  }
+
+  /**
+   * Install a bunch of block classes.
+   * @return [type] [description]
+   */
+  public function install_block_classes() {
+    // Install block classes:
+    $fields = array('module', 'delta', 'css_class');
+    $values = array(
+      array("bean","social-media","span4"),
+      array("bean","contact-block","span4"),
+      array("bean","optional-footer-block","span4"),
+      array("bean","homepage-about-block","well"),
+      array("bean","flexi-block-for-the-home-page","well"),
+      array("bean","jumpstart-footer-social-media-co","span4"),
+      array("bean","jumpstart-footer-contact-block","span4"),
+      array("bean","jumpstart-footer-social-media--0","span4"),
+      array("menu","menu-admin-shortcuts-home","shortcuts-home"),
+      array("menu","menu-admin-shortcuts-site-action","shortcuts-actions shortcuts-dropdown"),
+      array("menu","menu-admin-shortcuts-add-feature","shortcuts-features"),
+      array("menu","menu-admin-shortcuts-get-help","shortcuts-help"),
+      array("menu","menu-admin-shortcuts-ready-to-la","shortcuts-launch"),
+      array("stanford_jumpstart_layouts","jumpstart-launch","shortcuts-launch-block"),
+      array("menu","menu-admin-shortcuts-logout-link","shortcuts-logout"),
+    );
+
+    // Key all the values.
+    $insert = db_insert('block_class')->fields($fields);
+    foreach ($values as $k => $value) {
+      $db_values = array_combine($fields, $value);
+      $insert->values($db_values);
+    }
+    $insert->execute();
   }
 
 }
