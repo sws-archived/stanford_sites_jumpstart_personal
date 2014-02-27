@@ -6,5 +6,5 @@
  * of your profile and you should be done with this file.
  */
 
-require_once DRUPAL_ROOT . "/profiles/stanford_sites_jumpstart/includes/autoloader.php";
-stanford_sites_jumpstart_autoloader("stanford_sites_jumpstart_personal");
+require_once DRUPAL_ROOT . "/profiles/stanford_sites_abstract/includes/autoloader.php";
+stanford_sites_abstract_autoloader("stanford_sites_jumpstart_personal");

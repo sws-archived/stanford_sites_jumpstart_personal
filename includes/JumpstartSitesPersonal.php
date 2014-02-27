@@ -10,7 +10,7 @@
 /**
  * JumpStart Installation Profile Class
  */
-class JumpstartSitesPersonal extends JumpstartSites {
+class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
   /**
    * Required function.
@@ -133,13 +133,13 @@ class JumpstartSitesPersonal extends JumpstartSites {
     $library_path .= "/SitesContentImporter.php";
     include_once $library_path;
 
-    // $restrict = array(
-    //   '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
-    // );
-
-    $content_types = array(
-      'stanford_page',
+    $restrict = array(
+//      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
     );
+
+    // $content_types = array(
+    //   'stanford_page',
+    // );
 
     // Vocab Pull.
     $importer = new SitesContentImporter();
