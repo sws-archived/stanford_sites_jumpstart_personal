@@ -59,6 +59,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
+    $tasks['stanford_sites_jumpstart_personal_disable_modules'] = array(
+      'display_name' => st('Disable Modules'),
+      'display' => FALSE,
+      'type' => 'normal',
+      'function' => 'disable_modules', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
     // Drupal does some fun things to run install tasks so we have to do some
     // extra work to ensure that they are run. Use this function to process your
     // new tasks. Do not pass in parent tasks as they have already been
@@ -100,6 +108,15 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // );
 
     // No need to return anything as this is all passed by reference.
+  }
+
+  /**
+   * Disable some modules.
+   * @return [type] [description]
+   */
+  public function disable_modules() {
+    $modules = array('dashboard');
+    module_disable($mdoules, FALSE);
   }
 
   /**
@@ -197,18 +214,29 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $owner_role = user_role_load_by_name('site owner');
     $sunet_role = user_role_load_by_name('SUNet User');
 
+    $sunetid = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_sunetid']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_sunetid'] : 'webservices';
+    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : 'Stanford Webservies';
+    $email = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_email']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_email'] : $sunetid . "@stanford.edu";
+
     // CREATE SITE OWNER USER!
     // ----------------------------------------------------------
     $sunet = strtolower(trim($sunetid));
     $authname = $sunet . '@stanford.edu';
 
-    $account = new stdClass;
-    $account->is_new = TRUE;
-    $account->name = $full_name;
-    $account->pass = user_hash_password(user_password());
-    $account->mail = $authname;
-    $account->init = $authname;
-    $account->status = TRUE;
+    // Try to load up the user.
+    $account = user_load_by_name($full_name);
+
+    // If no user create one.
+    if (!$account) {
+      $account = new stdClass;
+      $account->is_new = TRUE;
+      $account->name = $full_name;
+      $account->pass = user_hash_password(user_password());
+      $account->mail = $email;
+      $account->init = $authname;
+      $account->status = TRUE;
+    }
+    // Change the roles for the user.
     $roles = array(DRUPAL_AUTHENTICATED_RID => TRUE);
 
     // Add site owner role by default.
@@ -276,7 +304,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $importer->import_content_beans();
 
     // Content Pull.
-    $filters = array('sites_products' => array('37'));
+    $filters = array('sites_products' => array('37'));  // 37 is term id for jsp
     $view_importer = new SitesContentImporterViews();
     $view_importer->set_endpoint($endpoint);
     $view_importer->set_resource('content');
