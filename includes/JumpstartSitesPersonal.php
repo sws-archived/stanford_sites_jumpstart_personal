@@ -10,7 +10,7 @@
 /**
  * JumpStart Installation Profile Class
  */
-class JumpstartSitesPersonal extends JumpstartSites {
+class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
   /**
    * Required function.
@@ -35,11 +35,19 @@ class JumpstartSitesPersonal extends JumpstartSites {
     unset($parent_tasks['JumpstartSites_stanford_sites_jumpstart_enable_modules']);
 
     // Sample task declaration differs from the normal task api slightly.
-    $tasks['stanford_sites_jumpstart_sub_example'] = array(
+    $tasks['stanford_sites_jumpstart_personal_install'] = array(
       'display_name' => st('My Profile Install Task'),
       'display' => TRUE,
       'type' => 'normal',
       'function' => 'install', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
+    $tasks['stanford_sites_jumpstart_personal_import_content'] = array(
+      'display_name' => st('Import Content'),
+      'display' => TRUE,
+      'type' => 'normal',
+      'function' => 'import_content', // The name of the method in this class to run.
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
@@ -67,20 +75,20 @@ class JumpstartSitesPersonal extends JumpstartSites {
     $form = parent::get_config_form($form, $form_state);
 
     // Add your own fields.
-    $form['stanford_sites_jumpstart_sub_example'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'My Profile Configuration',
-      '#description' => 'My Profile Configuration Options.',
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-    );
+    // $form['stanford_sites_jumpstart_sub_example'] = array(
+    //   '#type' => 'fieldset',
+    //   '#title' => 'My Profile Configuration',
+    //   '#description' => 'My Profile Configuration Options.',
+    //   '#collapsible' => TRUE,
+    //   '#collapsed' => FALSE,
+    // );
 
-    $form['stanford_sites_jumpstart_sub_example']['myvalue'] = array(
-      '#type' => 'textfield',
-      '#title' => 'My Configuration Field',
-      '#description' => 'Please enter some value into this field',
-      '#default_value' => isset($form_state['values']['myvalue']) ? $form_state['values']['myvalue'] : 'default value',
-    );
+    // $form['stanford_sites_jumpstart_sub_example']['myvalue'] = array(
+    //   '#type' => 'textfield',
+    //   '#title' => 'My Configuration Field',
+    //   '#description' => 'Please enter some value into this field',
+    //   '#default_value' => isset($form_state['values']['myvalue']) ? $form_state['values']['myvalue'] : 'default value',
+    // );
 
     // No need to return anything as this is all passed by reference.
   }
@@ -97,15 +105,126 @@ class JumpstartSitesPersonal extends JumpstartSites {
     // registry and paths as they may not be available or correct. To ensure
     // some normallity it may be useful to flush all the caches first.
 
-    drupal_flush_all_caches();
-    module_load_all();
-
     // Set variables.
     $requester_name = variable_get('stanford_sites_requester_name', NULL);
     variable_set('site_name', $requester_name);
 
-    // Enable modules.
-    module_enable(array('my_custom_module'));
+    // Variables.
+    variable_set('theme_default', 'stanford_light');
+    variable_set('admin_theme', 'stanford_seven');
+    variable_set('node_admin_theme', 'stanford_seven');
+    variable_set('webauth_link_text', "SUNetID Login");
+    variable_set('webauth_allow_local', 0);
+
+    // Unset user menu as secondary links.
+    variable_set('menu_secondary_links_source', "");
+
+    // Enable themes.
+    $themes = array(
+      'stanford_framework',
+      'stanford_light',
+      'stanford_seven',
+      'open_framework'
+    );
+
+    theme_enable($themes);
+
+    // This is needed here after enabling themes so that blocks get built into
+    // the blocks table with the new themes.
+    drupal_flush_all_caches();
+
+    // Blocks. Turn em off.
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'webauth')
+    ->condition('delta', 'webauth_login_block')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'system')
+    ->condition('delta', 'navigation')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'search')
+    ->condition('delta', 'form')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'stanford_sites_helper')
+    ->condition('delta', 'firststeps')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'stanford_sites_helper')
+    ->condition('delta', 'helplinks')
+    ->execute();
+
+    db_update('block')
+    ->fields(array('status' => 0))
+    ->condition('module', 'user')
+    ->condition('delta', 'login')
+    ->execute();
+
+  }
+
+  /**
+   * Import content from the content server.
+   * @param  [type] $install_state [description]
+   * @return [type]                [description]
+   */
+  public function import_content(&$install_state) {
+
+    // Content Server
+    $endpoint = 'https://sites.stanford.edu/jsa-content/jsainstall';
+
+    // Try to use libraries module if available to find the path.
+    if (function_exists('libraries_get_path')) {
+      $library_path = DRUPAL_ROOT . '/' . libraries_get_path('stanford_sites_content_importer');
+    }
+
+    if (!drupal_valid_path($library_path)) {
+      $library_path = DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer';
+    }
+
+    $library_path .= "/SitesContentImporter.php";
+    include_once $library_path;
+
+    $restrict = array(
+//      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
+    );
+
+    // $content_types = array(
+    //   'stanford_page',
+    // );
+
+    // Vocab Pull.
+    $importer = new SitesContentImporter();
+    $importer->set_endpoint($endpoint);
+    $importer->import_vocabulary_trees();
+
+    // Bean Pull.
+    $uuids = array(
+      '2066e872-9547-40be-9342-dbfb81248589', // Jumpstart Footer Social Media Connect Block
+      'd6312ea0-d128-4805-ad0e-fa712aa1ac40', // Stanford Personal Node Edit Help Block
+      'a0188c23-cd48-4886-a1a1-15d198e5329d', // Stanford Personal Footer Block
+      'd08151ab-2808-4569-9e9a-e977c2ba57c4', // Stanford Personal Sidebar Block
+    );
+
+    $importer->set_bean_uuids($uuids);
+    $importer->import_content_beans();
+
+    // Content Pull.
+    $filters = array('sites_products' => array('37'));
+    $view_importer = new SitesContentImporterViews();
+    $view_importer->set_endpoint($endpoint);
+    $view_importer->set_resource('content');
+    $view_importer->set_filters($filters);
+    $view_importer->import_content_by_views_and_filters();
 
   }
 
