@@ -199,6 +199,9 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // havoc when installing through drush. Re-enable later.
     variable_del('file_private_path');
 
+    // Turn off client side caching in admin_menu as it doesnt work.
+    variable_set('admin_menu_cache_client', 0);
+
     // Enable themes.
     $themes = array(
       'stanford_framework',
