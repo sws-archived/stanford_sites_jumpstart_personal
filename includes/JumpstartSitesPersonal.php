@@ -82,11 +82,11 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
-    $tasks['stanford_sites_jumpstart_personal_sync_fields'] = array(
-      'display_name' => st('Syncronise CAP fields'),
+    $tasks['stanford_sites_jumpstart_personal_sync_cap'] = array(
+      'display_name' => st('Syncronise CAP Date'),
       'display' => TRUE,
       'type' => 'normal',
-      'function' => 'sync_fields', // The name of the method in this class to run.
+      'function' => 'sync_with_cap', // The name of the method in this class to run.
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
@@ -97,6 +97,8 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'function' => 'cap_fetch', // The name of the method in this class to run.
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
+
+    // -------------------------------------------------------------------------
 
     $tasks['stanford_sites_jumpstart_personal_disable_modules'] = array(
       'display_name' => st('Disable Modules'),
@@ -456,10 +458,20 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     }
 
     // Sync without batch.
+    $form_state['values'] = array();
+    drupal_form_submit('stanford_cap_api_settings_form', $form_state);
+    drupal_form_submit('stanford_cap_api_details_form', $form_state);
+    stanford_cap_api_profiles_settings_form_submit($form, $form_state);
+
     stanford_cap_api_profiles_get_profile_schema();
     stanford_cap_api_profiles_synchronize_schema();
+
     stanford_cap_api_profiles_get_orgcode_fields();
     stanford_cap_api_orgs_import();
+
+    drupal_flush_all_caches();
+    drupal_static_reset();
+
   }
 
   /**
@@ -488,7 +500,6 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     }
 
     stanford_cap_api_profiles_profile_import($profile['profileId']);
-    stanford_cap_api_profiles_update_profiles();
   }
 
   // ---------------------------------------------------------------------------

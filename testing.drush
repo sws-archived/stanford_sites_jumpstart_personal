@@ -18,6 +18,8 @@
       throw new Exception('Could not authenticate with CAP');
     }
 
+    drupal_flush_all_caches();
+    drupal_static_reset();
   }
 
   /**
@@ -32,11 +34,17 @@
     }
 
     // Sync without batch.
+    $form = array();
+    $form_state['values'] = array();
+    drupal_form_submit('stanford_cap_api_settings_form', $form_state);
+    drupal_form_submit('stanford_cap_api_details_form', $form_state);
+    stanford_cap_api_profiles_settings_form_submit($form, $form_state);
+
     stanford_cap_api_profiles_get_profile_schema();
     stanford_cap_api_profiles_synchronize_schema();
+
     stanford_cap_api_profiles_get_orgcode_fields();
     stanford_cap_api_orgs_import();
-
   }
 
   /**
@@ -44,6 +52,7 @@
    * @return [type] [description]
    */
   function cap_fetch(&$install_state) {
+
     module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
 
     if (!stanford_cap_api_auth_status()) {
@@ -52,8 +61,10 @@
 
     $form_state = array();
     $form = array();
+    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : 'Sara Worrell-Berg';
+
     $form_state['values'] = array();
-    $form_state['values']['name'] = 'Sara Worrell-Berg';
+    $form_state['values']['name'] = $full_name;
 
     drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
     stanford_cap_api_profiles_import_result_form($form, $form_state);
@@ -63,7 +74,6 @@
     }
 
     stanford_cap_api_profiles_profile_import($profile['profileId']);
-    stanford_cap_api_profiles_update_profiles();
   }
 
 
