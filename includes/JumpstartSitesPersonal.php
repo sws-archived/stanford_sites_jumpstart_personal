@@ -162,8 +162,8 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type] [description]
    */
   public function disable_modules() {
-    $modules = array('dashboard');
-    module_disable($mdoules, FALSE);
+    $modules = array('dashboard', 'search');
+    module_disable($modules, FALSE);
   }
 
   /**
