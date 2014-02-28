@@ -479,6 +479,26 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // drupal_form_submit('stanford_cap_api_details_form', $form_state);
     // stanford_cap_api_profiles_settings_form_submit($form, $form_state);
 
+    // Before we go about syncing things lets check to see if a
+    // profile is available.
+
+    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : '';
+    if (empty($full_name)) {
+      watchdog('JumpstartSitesPersonal', 'Full Name was empty. Did not import profile.', WATCHDOG_NOTICE);
+      return;
+    }
+
+    $form_state['values'] = array();
+    $form_state['values']['name'] = $full_name;
+
+    drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
+    stanford_cap_api_profiles_import_result_form($form, $form_state);
+
+    if (!isset($_SESSION['search_response']['values'][0])) {
+      watchdog('JumpstartSitesPersonal', 'Did not import profile as profile not available.', WATCHDOG_NOTICE);
+      return;
+    }
+
     stanford_cap_api_profiles_get_profile_schema();
     stanford_cap_api_profiles_synchronize_schema();
 
@@ -500,7 +520,11 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     $form_state = array();
     $form = array();
-    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : 'Sara Worrell-Berg';
+    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : '';
+
+    if (empty($full_name)) {
+      return;
+    }
 
     $form_state['values'] = array();
     $form_state['values']['name'] = $full_name;
@@ -508,11 +532,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
     stanford_cap_api_profiles_import_result_form($form, $form_state);
 
+    $profile = FALSE;
     if (isset($_SESSION['search_response']['values'][0])) {
       $profile = $_SESSION['search_response']['values'][0];
     }
 
-    stanford_cap_api_profiles_profile_import($profile['profileId']);
+    if ($profile) {
+      stanford_cap_api_profiles_profile_import($profile['profileId']);
+    }
   }
 
   // ---------------------------------------------------------------------------
