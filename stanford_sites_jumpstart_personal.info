@@ -31,7 +31,6 @@ dependencies[] = context_http_header
 dependencies[] = context_useragent
 
 dependencies[] = stanford_bean_types
-dependencies[] = stanford_bean_types_permissions
 dependencies[] = stanford_image
 dependencies[] = stanford_image_styles
 dependencies[] = stanford_page
