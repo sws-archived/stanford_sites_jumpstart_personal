@@ -156,7 +156,6 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     //   '#default_value' => isset($form_state['values']['myvalue']) ? $form_state['values']['myvalue'] : 'default value',
     // );
 
-    // No need to return anything as this is all passed by reference.
   }
 
   /**
@@ -253,6 +252,23 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     ->fields(array('status' => 0))
     ->condition('module', 'user')
     ->condition('delta', 'login')
+    ->execute();
+
+    // Set pathologic Base Paths.
+    global $base_url;
+    $subdir = str_replace('https://sites.stanford.edu', '', $base_url) . '/';
+    $settings = serialize(array(
+      'local_paths' => $subdir,
+      'protocol_style' => 'full',
+    ));
+    db_merge('filter')
+    ->key(array(
+      'format' => 'content_editor_text_format',
+      'name' => 'pathologic',
+    ))
+    ->fields(array(
+      'settings' => $settings,
+    ))
     ->execute();
 
   }
