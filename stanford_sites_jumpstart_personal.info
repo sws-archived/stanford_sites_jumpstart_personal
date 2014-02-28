@@ -1,6 +1,6 @@
-name = Stanford Sites Jumpstart Personal
-distribution_name = Stanford Jumpstart Personal
-description = Stanford Sites Jumpstart Personal installation profile.
+name = Stanford Sites Personal
+distribution_name = Stanford Personal
+description = Stanford Sites Personal installation profile.
 core = 7.x
 version = 7.x-1.x-dev
 
