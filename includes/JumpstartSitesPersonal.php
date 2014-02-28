@@ -476,17 +476,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // Sync without batch.
     $form_state['values'] = array();
     drupal_form_submit('stanford_cap_api_settings_form', $form_state);
-    drupal_form_submit('stanford_cap_api_details_form', $form_state);
-    stanford_cap_api_profiles_settings_form_submit($form, $form_state);
+    // drupal_form_submit('stanford_cap_api_details_form', $form_state);
+    // stanford_cap_api_profiles_settings_form_submit($form, $form_state);
 
     stanford_cap_api_profiles_get_profile_schema();
     stanford_cap_api_profiles_synchronize_schema();
 
     stanford_cap_api_profiles_get_orgcode_fields();
     stanford_cap_api_orgs_import();
-
-    drupal_flush_all_caches();
-    drupal_static_reset();
 
   }
 
