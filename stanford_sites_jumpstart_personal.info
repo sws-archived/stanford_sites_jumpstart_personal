@@ -42,6 +42,7 @@ dependencies[] = stanford_personal_layouts
 dependencies[] = stanford_personal_roles
 dependencies[] = stanford_personal_shortcuts
 dependencies[] = stanford_personal_wysiwyg
+dependencies[] = stanford_personal_cap_settings
 
 dependencies[] = stanford_cap_api
 dependencies[] = stanford_cap_api_profiles

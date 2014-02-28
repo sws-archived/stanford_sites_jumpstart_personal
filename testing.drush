@@ -1,0 +1,78 @@
+<?php
+
+ /**
+   * [cap_configure description]
+   * @return [type] [description]
+   */
+  function cap_configure(&$install_state) {
+
+    $auth_uri = "https://authz.stanford.edu/oauth/token";
+    $username = "drupal-hackathon";
+    $password = "WP3q9Cdytt2K@SD";
+
+    variable_set('stanford_cap_api_username', $username);
+    variable_set('stanford_cap_api_password', $password);
+
+    $auth_token = stanford_cap_api_auth($username, $password, $auth_uri);
+    if (!$auth_token) {
+      throw new Exception('Could not authenticate with CAP');
+    }
+
+  }
+
+  /**
+   * [sync_fields description]
+   * @return [type] [description]
+   */
+  function sync_with_cap(&$install_state) {
+    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
+
+    if (!stanford_cap_api_auth_status()) {
+      throw new Exception("Could not connect to CAP API");
+    }
+
+    // Sync without batch.
+    stanford_cap_api_profiles_get_profile_schema();
+    stanford_cap_api_profiles_synchronize_schema();
+    stanford_cap_api_profiles_get_orgcode_fields();
+    stanford_cap_api_orgs_import();
+
+  }
+
+  /**
+   * Fetch the single user profile.
+   * @return [type] [description]
+   */
+  function cap_fetch(&$install_state) {
+    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
+
+    if (!stanford_cap_api_auth_status()) {
+      throw new Exception("Could not connect to CAP API");
+    }
+
+    $form_state = array();
+    $form = array();
+    $form_state['values'] = array();
+    $form_state['values']['name'] = 'Sara Worrell-Berg';
+
+    drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
+    stanford_cap_api_profiles_import_result_form($form, $form_state);
+
+    if (isset($_SESSION['search_response']['values'][0])) {
+      $profile = $_SESSION['search_response']['values'][0];
+    }
+
+    stanford_cap_api_profiles_profile_import($profile['profileId']);
+    stanford_cap_api_profiles_update_profiles();
+  }
+
+
+///////////////////////////////////////////////////////////////
+
+$args = drush_get_arguments();
+if(function_exists($args[2])) {
+  $args[2]($args);
+  drush_log('completed running', 'ok');
+} else {
+  drush_log('Could not find drush script command', 'error');
+}

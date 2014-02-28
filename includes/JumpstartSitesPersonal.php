@@ -189,6 +189,9 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     variable_set('webauth_link_text', "SUNetID Login");
     variable_set('webauth_allow_local', 0);
 
+    // Set temp directory.
+    file_directory_temp();
+
     // Unset user menu as secondary links.
     variable_set('menu_secondary_links_source', "");
 
@@ -427,21 +430,17 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    */
   public function cap_configure(&$install_state) {
 
-    // variable_set('stanford_cap_api_auth_uri', "https://authz.stanford.edu/oauth/token");
-    // variable_set('stanford_cap_api_base_url', "https://api.stanford.edu");
-    // variable_set('stanford_cap_api_configured', TRUE);
-    // variable_set('stanford_cap_api_import_fields_html', 1);
-    // variable_set('stanford_cap_api_import_profile_fields', "import_list");
-    // variable_set('stanford_cap_api_orgs_imported', TRUE);
-    // variable_set('stanford_cap_api_password', "WP3q9Cdytt2K@SD");
-    // variable_set('stanford_cap_api_profiles_layout_synced', FALSE);
-    // variable_set('stanford_cap_api_profiles_schema_hash', "fe6d546aafa824f3d487ae0bcab3532e");
-    // variable_set('stanford_cap_api_profiles_schema_synchronized', FALSE);
-    // variable_set('stanford_cap_api_profiles_sync_field_list',  array{s:5:"alias";s:5:"alias";s:16:"alternateContact";s:16:"alternateContact";s:22:"alternateContact.email";s:22:"alternateContact.email";s:29:"alternateContact.phoneNumbers";s:29:"alternateContact.phoneNumbers";s:22:"alternateContact.title";s:22:"alternateContact.title";s:21:"currentRoleAtStanford";s:21:"currentRoleAtStanford";s:11:"displayName";s:11:"displayName";s:13:"internetLinks";s:13:"internetLinks";s:17:"internetLinks.url";s:17:"internetLinks.url";s:14:"primaryContact";s:14:"primaryContact";s:20:"primaryContact.email";s:20:"primaryContact.email";s:19:"primaryContact.name";s:19:"primaryContact.name";s:27:"primaryContact.phoneNumbers";s:27:"primaryContact.phoneNumbers";s:20:"primaryContact.title";s:20:"primaryContact.title";s:13:"profilePhotos";s:13:"profilePhotos";s:17:"profilePhotos.big";s:17:"profilePhotos.big";s:29:"profilePhotos.big.contentType";s:29:"profilePhotos.big.contentType";s:24:"profilePhotos.big.height";s:24:"profilePhotos.big.height";s:29:"profilePhotos.big.placeholder";s:29:"profilePhotos.big.placeholder";s:22:"profilePhotos.big.type";s:22:"profilePhotos.big.type";s:21:"profilePhotos.big.url";s:21:"profilePhotos.big.url";s:23:"profilePhotos.big.width";s:23:"profilePhotos.big.width";s:6:"titles";s:6:"titles";s:12:"titles.label";s:12:"titles.label";s:12:"titles.title";s:12:"titles.title";s:3:"uid";s:3:"uid";i:0;s:30:"longTitle.organization.orgCode";i:1;s:31:"shortTitle.organization.orgCode";i:2;s:27:"titles.organization.orgCode";}
-    // variable_set('stanford_cap_api_profiles_text_fields_list',   a:31:{i:0;s:28:"serviceWork.description.html";i:1;s:28:"serviceWork.description.text";i:2;s:23:"serviceWork.detail.html";i:3;s:23:"serviceWork.detail.text";i:4;s:30:"presentations.description.html";i:5;s:30:"presentations.description.text";i:6;s:25:"presentations.detail.html";i:7;s:25:"presentations.detail.text";i:8;s:25:"projects.description.html";i:9;s:25:"projects.description.text";i:10;s:20:"projects.detail.html";i:11;s:20:"projects.detail.text";i:12;s:33:"researchProjects.description.html";i:13;s:33:"researchProjects.description.text";i:14;s:28:"researchProjects.detail.html";i:15;s:28:"researchProjects.detail.text";i:16;s:31:"workExperience.description.html";i:17;s:31:"workExperience.description.text";i:18;s:26:"workExperience.detail.html";i:19;s:26:"workExperience.detail.text";i:20;s:24:"publications.detail.html";i:21;s:24:"publications.detail.text";i:22;s:28:"publications.chicagoCitation";i:23;s:24:"publications.apaCitation";i:24;s:24:"publications.mlaCitation";i:25;s:24:"publications.capCitation";i:26;s:25:"publications.abstractText";i:27;s:33:"industryRelationships.detail.html";i:28;s:33:"industryRelationships.detail.text";i:29;s:47:"industryRelationships.disclosureStatement.brief";i:30;s:46:"industryRelationships.disclosureStatement.full";}
-    // variable_set('stanford_cap_api_token',   s:808:"eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI4NjIwZTc0NS1kOTQ2LTQ0ZDUtOTdhOC01NmI5MGFlNGEwOWIiLCJzdWIiOiJkcnVwYWwtaGFja2F0aG9uIiwiYXV0aG9yaXRpZXMiOlsicHJvZmlsZXMucmVhZF9wdWJsaWMiXSwic2NvcGUiOlsicHJvZmlsZXMucmVhZF9wdWJsaWMiXSwiY2xpZW50X2lkIjoiZHJ1cGFsLWhhY2thdGhvbiIsImNpZCI6ImRydXBhbC1oYWNrYXRob24iLCJncmFudF90eXBlIjoiY2xpZW50X2NyZWRlbnRpYWxzIiwiaWF0IjoxMzkzNTQxMDI1LCJleHAiOjEzOTM2Mjc0MjUsImlzcyI6Imh0dHBzOi8vYXV0aHouc3RhbmZvcmQuZWR1L29hdXRoL3Rva2VuIiwiYXVkIjpbInByb2ZpbGVzIl19.lxPvvfirCxO4JVgz09s6o73Mo5ifaYtrV5Y4-eO3bGVqdTN2fE-nqVYrby10nCZW8Hn3hOBCPdUG3I9a-pRwRMPHLHweK2Ht8cWqZUgiD0SQs57U4gnZ8jQBh9Jb-sCxqu-YTr3Zo_96-PNiahiMvtoQ9tKIT9cRXqtkGwxqIOKK2entzTQeNJRrFGhbGg1R0AdjcLtEKTT5mDPyR0CXIhBY5IheE60YIEzhy2yF4UWLba-nQnJJrmx-pWVX4zVjwYJx8wz5Z_mmwHvXlJcRxzmBt3MvnsgOufbNXweLPi296uYgnjAmFWO81zYchVEcqbBThH_ybEP7evWatjH3HA";
-    // variable_set('stanford_cap_api_token_expire',  i:1393627423;
-    // variable_set('stanford_cap_api_username',  s:16:"drupal-hackathon";
+    $auth_uri = "https://authz.stanford.edu/oauth/token";
+    $username = "drupal-hackathon";
+    $password = "WP3q9Cdytt2K@SD";
+
+    variable_set('stanford_cap_api_username', $username);
+    variable_set('stanford_cap_api_password', $password);
+
+    $auth_token = stanford_cap_api_auth($username, $password, $auth_uri);
+    if (!$auth_token) {
+      throw new Exception('Could not authenticate with CAP');
+    }
 
   }
 
@@ -449,8 +448,18 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * [sync_fields description]
    * @return [type] [description]
    */
-  public function sync_fields(&$install_state) {
+  public function sync_with_cap(&$install_state) {
+    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
 
+    if (!stanford_cap_api_auth_status()) {
+      throw new Exception("Could not connect to CAP API");
+    }
+
+    // Sync without batch.
+    stanford_cap_api_profiles_get_profile_schema();
+    stanford_cap_api_profiles_synchronize_schema();
+    stanford_cap_api_profiles_get_orgcode_fields();
+    stanford_cap_api_orgs_import();
   }
 
   /**
@@ -458,7 +467,28 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type] [description]
    */
   public function cap_fetch(&$install_state) {
+    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
 
+    if (!stanford_cap_api_auth_status()) {
+      throw new Exception("Could not connect to CAP API");
+    }
+
+    $form_state = array();
+    $form = array();
+    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : 'Sara Worrell-Berg';
+
+    $form_state['values'] = array();
+    $form_state['values']['name'] = $full_name;
+
+    drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
+    stanford_cap_api_profiles_import_result_form($form, $form_state);
+
+    if (isset($_SESSION['search_response']['values'][0])) {
+      $profile = $_SESSION['search_response']['values'][0];
+    }
+
+    stanford_cap_api_profiles_profile_import($profile['profileId']);
+    stanford_cap_api_profiles_update_profiles();
   }
 
   // ---------------------------------------------------------------------------
