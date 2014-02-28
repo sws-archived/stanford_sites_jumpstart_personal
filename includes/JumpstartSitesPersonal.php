@@ -328,6 +328,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     // Now that the library exists lets add our own custom processors.
     require_once "ImporterFieldProcessorCustomFieldSDestinationPublish.php";
+    require_once "ImporterFieldProcessorCustomBody.php";
 
     $restrict = array(
 //      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
