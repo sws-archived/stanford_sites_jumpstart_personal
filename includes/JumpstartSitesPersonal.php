@@ -59,6 +59,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
+    $tasks['stanford_sites_jumpstart_personal_import_menu'] = array(
+      'display_name' => st('Import Main Menu'),
+      'display' => TRUE,
+      'type' => 'normal',
+      'function' => 'import_menu', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
     $tasks['stanford_sites_jumpstart_personal_disable_modules'] = array(
       'display_name' => st('Disable Modules'),
       'display' => FALSE,
@@ -211,21 +219,6 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     ->condition('delta', 'login')
     ->execute();
 
-    // Install menus.
-    module_load_include('inc', 'menu_import', 'includes/import');
-    $content_path = drupal_get_path('profile', 'stanford_sites_jumpstart_personal') . "/includes/menus/";
-    $options = array(
-      'create_content'  => FALSE,
-      'link_to_content' => TRUE,
-      'remove_menu_items' => TRUE,
-    );
-
-    // Import the menu items.
-    $result = menu_import_file($content_path . 'main-menu-export.txt', 'main-menu', $options);
-
-    // If we are done importing menus then we can disable the module.
-    module_disable(array('menu_import'));
-
   }
 
   /**
@@ -334,6 +327,27 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $view_importer->set_filters($filters);
     $view_importer->import_content_by_views_and_filters();
 
+  }
+
+  /**
+   * Import the main menu.
+   * @return [type] [description]
+   */
+  public function import_menu() {
+    // Install menus.
+    module_load_include('inc', 'menu_import', 'includes/import');
+    $content_path = drupal_get_path('profile', 'stanford_sites_jumpstart_personal') . "/includes/menus/";
+    $options = array(
+      'create_content'  => FALSE,
+      'link_to_content' => TRUE,
+      'remove_menu_items' => TRUE,
+    );
+
+    // Import the menu items.
+    $result = menu_import_file($content_path . 'main-menu-export.txt', 'main-menu', $options);
+
+    // If we are done importing menus then we can disable the module.
+    module_disable(array('menu_import'));
   }
 
   /**
