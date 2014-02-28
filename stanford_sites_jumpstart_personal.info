@@ -24,6 +24,7 @@ dependencies[] = features
 dependencies[] = diff
 dependencies[] = metatag
 dependencies[] = menu_block
+dependencies[] = menu_import
 dependencies[] = webauth_extras
 dependencies[] = wysiwyg
 dependencies[] = context_http_header
