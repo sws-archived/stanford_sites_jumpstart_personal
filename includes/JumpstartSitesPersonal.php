@@ -28,12 +28,6 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // want from there.
     $parent_tasks = parent::get_install_tasks($install_state);
 
-
-    // Remove some parent tasks.
-    // Jumpstart adds content to the site that is different from Stanford Sites Personal. Let's
-    // disable those modules and add in only the ones we want again.
-    unset($parent_tasks['JumpstartSites_stanford_sites_jumpstart_enable_modules']);
-
     // Sample task declaration differs from the normal task api slightly.
     $tasks['stanford_sites_jumpstart_personal_install'] = array(
       'display_name' => st('My Profile Install Task'),
@@ -179,7 +173,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // some normallity it may be useful to flush all the caches first.
 
     // Set variables.
-    $requester_name = variable_get('stanford_sites_requester_name', NULL);
+    $requester_name = variable_get('stanford_sites_requester_name', 'Welcome [edit me]');
     variable_set('site_name', $requester_name);
 
     // Variables.
@@ -332,6 +326,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     // Now that the library exists lets add our own custom processors.
     require_once "ImporterFieldProcessorCustomFieldSDestinationPublish.php";
     require_once "ImporterFieldProcessorCustomBody.php";
+    require_once "ImporterPropertyProcessorTrimAlias.php";
 
     $restrict = array(
 //      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
@@ -363,6 +358,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $view_importer->set_endpoint($endpoint);
     $view_importer->set_resource('content');
     $view_importer->set_filters($filters);
+    $view_importer->add_property_processor(array('url_alias' => 'ImporterPropertyProcessorTrimAlias'));
     $view_importer->import_content_by_views_and_filters();
 
   }
