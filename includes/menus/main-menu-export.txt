@@ -1,10 +1,10 @@
 Home {"url":"<front>"}
-Research {"url":"research-0"}
+Research {"url":"research"}
 Publications {"url":"publications"}
 Teaching {"url":"teaching"}
 CV {"url":"cv"}
 Projects {"url":"projects"}
-About {"url":"about-0"}
+About {"url":"about"}
 Links {"url":"links"}
 Photos {"url":"photos"}
 Contact {"url":"contact"}

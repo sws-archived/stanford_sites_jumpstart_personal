@@ -6,7 +6,7 @@ For more information please see:
 https://github.com/SU-SWS/stanford_sites_jumpstart/blob/7.x-3.x-dev/README.md
 
 
-Install profile for Stanford Sites Jumpstart Stack.
+Install profile for Stanford Sites.
 
 ## Installation Logic
 
@@ -30,7 +30,10 @@ See [API.md](https://github.com/SU-SWS/stanford_sites_jumpstart/blob/7.x-3.x-dev
 
 When installing via drush you can use the following flags
 
-    --full_name | The full name of the site owner user.
-    --sunetid | The sunet id of the site owner user.
+    --install_configure_form.capapi_username
+    --install_configure_form.capapi_password
+    --install_configure_form.requester_sunetid
+    --install_configure_form.requester_name
+    --install_configure_form.requester_email
 
-    eg: drush si stanford_sites_jumpstart --full_name="John Wayne" --sunetid="johnway" --strict=0
+    eg: drush si stanford_sites_jumpstart_personal [any or all of the above options]

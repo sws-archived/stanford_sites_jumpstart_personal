@@ -76,21 +76,39 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
-    $tasks['stanford_sites_jumpstart_personal_sync_cap'] = array(
-      'display_name' => st('Syncronise CAP Date'),
-      'display' => TRUE,
-      'type' => 'normal',
-      'function' => 'sync_with_cap', // The name of the method in this class to run.
-      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
-    );
+    if (variable_get('stanford_sites_personal_cap_ok', FALSE)) {
 
-    $tasks['stanford_sites_jumpstart_personal_cap_fetch'] = array(
-      'display_name' => st('Fetch CAP Profile'),
-      'display' => TRUE,
-      'type' => 'normal',
-      'function' => 'cap_fetch', // The name of the method in this class to run.
-      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
-    );
+      // $tasks['stanford_sites_jumpstart_personal_sync_cap'] = array(
+      //   'display_name' => st('Syncronise CAP Date'),
+      //   'display' => TRUE,
+      //   'type' => 'normal',
+      //   'function' => 'sync_with_cap', // The name of the method in this class to run.
+      //   'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+      // );
+
+      $tasks['stanford_sites_jumpstart_personal_cap_fetch'] = array(
+        'display_name' => st('Fetch CAP Profile'),
+        'display' => TRUE,
+        'type' => 'normal',
+        'function' => 'cap_fetch', // The name of the method in this class to run.
+        'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+      );
+
+    }
+    else {
+
+      // INSTALL BACKUP PLAN.
+
+      $tasks['stanford_sites_jumpstart_personal_install_feature'] = array(
+        'display_name' => st('Install Feature Instead of CAP'),
+        'display' => TRUE,
+        'type' => 'normal',
+        'function' => 'install_stanford_person_feature', // The name of the method in this class to run.
+        'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+      );
+
+    }
+
 
     // -------------------------------------------------------------------------
 
@@ -132,23 +150,30 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     // Get all parent profile changes and additions to the configuration form.
     $form = parent::get_config_form($form, $form_state);
+
+    $form['stanford_sites_jumpstart_personal'] = array(
+      '#type' => 'fieldset',
+      '#title' => 'CAP API Configuration',
+      '#description' => 'Cap configuration settings.',
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+
+    $form['stanford_sites_jumpstart_personal']['capapi_username'] = array(
+      '#type' => 'textfield',
+      '#title' => 'CAP API Username',
+      '#description' => 'Please enter the username to authenticate with the CAP API.',
+      '#default_value' => isset($form_state['values']['capapi_username']) ? $form_state['values']['capapi_username'] : '',
+    );
+
+    $form['stanford_sites_jumpstart_personal']['capapi_password'] = array(
+      '#type' => 'password',
+      '#title' => 'CAP API Password',
+      '#description' => 'Please enter the password to authenticate with the CAP API.',
+      '#default_value' => isset($form_state['values']['capapi_password']) ? $form_state['values']['capapi_password'] : '',
+    );
+
     return $form;
-
-    // Add your own fields.
-    // $form['stanford_sites_jumpstart_sub_example'] = array(
-    //   '#type' => 'fieldset',
-    //   '#title' => 'My Profile Configuration',
-    //   '#description' => 'My Profile Configuration Options.',
-    //   '#collapsible' => TRUE,
-    //   '#collapsed' => FALSE,
-    // );
-
-    // $form['stanford_sites_jumpstart_sub_example']['myvalue'] = array(
-    //   '#type' => 'textfield',
-    //   '#title' => 'My Configuration Field',
-    //   '#description' => 'Please enter some value into this field',
-    //   '#default_value' => isset($form_state['values']['myvalue']) ? $form_state['values']['myvalue'] : 'default value',
-    // );
 
   }
 
@@ -159,6 +184,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
   public function disable_modules() {
     $modules = array('dashboard', 'search');
     module_disable($modules, FALSE);
+    drush_log('JSP - Finished disable modules task.', 'status');
   }
 
   /**
@@ -168,7 +194,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return null
    */
   public function install(&$install_state) {
-
+    drush_log('JSP - Start install task.', 'status');
     // In here you have full access to everything Drupal. Beware of caches
     // registry and paths as they may not be available or correct. To ensure
     // some normallity it may be useful to flush all the caches first.
@@ -268,6 +294,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     ))
     ->execute();
 
+    drush_log('JSP - Finished install task.', 'status');
   }
 
   /**
@@ -275,6 +302,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type] [description]
    */
   public function create_users(&$install_state) {
+    drush_log('JSP - Start create_users task.', 'status');
 
     $owner_role = user_role_load_by_name('site owner');
     $sunet_role = user_role_load_by_name('SUNet User');
@@ -320,6 +348,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     // ----------------------------------------------------------
 
+    drush_log('JSP - Finished create_users task.', 'status');
   }
 
   /**
@@ -328,38 +357,34 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type]                [description]
    */
   public function import_content(&$install_state) {
+    drush_log('JSP - Start import_content task.', 'status');
 
-    // Content Server
-    $endpoint = 'https://sites.stanford.edu/jsa-content/jsainstall';
+    // Load up the jumpstart profile and use its import function.
+    $this->load_sites_content_importer_files($install_state);
 
-    // Try to use libraries module if available to find the path.
-    if (function_exists('libraries_get_path')) {
-      $library_path = DRUPAL_ROOT . '/' . libraries_get_path('stanford_sites_content_importer');
-    }
-
-    if (!drupal_valid_path($library_path)) {
-      $library_path = DRUPAL_ROOT . '/sites/all/libraries/stanford_sites_content_importer';
-    }
-
-    $library_path .= "/SitesContentImporter.php";
-    include_once $library_path;
+    // @TODO: no hard code of this.
+    $endpoint = "https://sites.stanford.edu/jsa-content/jsainstall";
 
     // Now that the library exists lets add our own custom processors.
     require_once "ImporterFieldProcessorCustomFieldSDestinationPublish.php";
     require_once "ImporterFieldProcessorCustomBody.php";
     require_once "ImporterPropertyProcessorTrimAlias.php";
 
+    // Do not import these!
     $restrict = array(
-//      '2efac412-06d7-42b4-bf75-74067879836c',   // Recent News Page
+      'tags',              // tags vocabulary
+      'sites_products',    // products vocabulary
+      'news_categories',
+      'publication_type',
+      'stanford_event_audience',
+      'stanford_event_categories',
+      'stanford_slide_category',
     );
-
-    // $content_types = array(
-    //   'stanford_page',
-    // );
 
     // Vocab Pull.
     $importer = new SitesContentImporter();
     $importer->set_endpoint($endpoint);
+    $importer->add_restricted_vocabularies($restrict);
     $importer->import_vocabulary_trees();
 
     // Bean Pull.
@@ -382,6 +407,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     $view_importer->add_property_processor(array('url_alias' => 'ImporterPropertyProcessorTrimAlias'));
     $view_importer->import_content_by_views_and_filters();
 
+    drush_log('JSP - Finished install task.', 'status');
   }
 
   /**
@@ -389,6 +415,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type] [description]
    */
   public function import_menu() {
+    drush_log('JSP - Starting import_menu task.', 'status');
     // Install menus.
     module_load_include('inc', 'menu_import', 'includes/import');
     $content_path = drupal_get_path('profile', 'stanford_sites_jumpstart_personal') . "/includes/menus/";
@@ -403,6 +430,8 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     // If we are done importing menus then we can disable the module.
     module_disable(array('menu_import'));
+
+    drush_log('JSP - Finished import_menu task.', 'status');
   }
 
   /**
@@ -410,6 +439,8 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type] [description]
    */
   public function install_block_classes() {
+    drush_log('JSP - Started install_block_classes task.', 'status');
+
     // Install block classes:
     $fields = array('module', 'delta', 'css_class');
     $values = array(
@@ -438,111 +469,207 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       $insert->values($db_values);
     }
     $insert->execute();
+
+    drush_log('JSP - Finished install_block_classes task.', 'status');
   }
 
   // CAP TASKS
   // ---------------------------------------------------------------------------
 
   /**
-   * [cap_configure description]
-   * @return [type] [description]
+   * Attempts to connect with the CAP API service.
+   *  $username = "drupal-hackathon";
+   *  $password = "WP3q9Cdytt2K@SD";
    */
   public function cap_configure(&$install_state) {
+    drush_log('JSP - Started cap_configure task.', 'status');
 
     $auth_uri = "https://authz.stanford.edu/oauth/token";
-    $username = "drupal-hackathon";
-    $password = "WP3q9Cdytt2K@SD";
+    $config_form_data = $install_state['forms']['install_configure_form'];
+    $username = isset($config_form_data['capapi_username']) ? $config_form_data['capapi_username'] : "";
+    $password = isset($config_form_data['capapi_password']) ? $config_form_data['capapi_password'] : "";
 
+    // Save to DB.
     variable_set('stanford_cap_api_username', $username);
     variable_set('stanford_cap_api_password', $password);
 
+    // Test the connection with the CAP API service.
     $auth_token = stanford_cap_api_auth($username, $password, $auth_uri);
+
+    // If we cannot authenticate for any reason we should stop trying to get
+    // information from the CAP API and carry on with plan B.
     if (!$auth_token) {
-      throw new Exception('Could not authenticate with CAP');
+      watchdog('JumpstartSitesPersonal', 'Could not authenticate with CAP API.', WATCHDOG_ERROR);
+      // END HERE WITHOUT SETTING THE cap_ok variable and the install tasks will
+      // skip installing through cap and install the stanford_person option.
+      return;
     }
 
+    // All things are good.
+    variable_set('stanford_sites_personal_cap_ok', TRUE);
+    drush_log('JSP - Finished cap_configure task.', 'status');
   }
 
   /**
-   * [sync_fields description]
-   * @return [type] [description]
+   * Syncs with the CAP API schema so that we may have a content type with
+   * fields to put data in.
+   * @param array $install_state installation state.
    */
   public function sync_with_cap(&$install_state) {
-    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
+    drush_log('JSP - Started sync_with_cap task.', 'status');
+    // module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
 
-    if (!stanford_cap_api_auth_status()) {
-      throw new Exception("Could not connect to CAP API");
-    }
+    // if (!stanford_cap_api_auth_status()) {
+    //   variable_set('stanford_sites_personal_cap_ok', FALSE);
+    //   throw new Exception("Could not connect to CAP API");
+    // }
 
     // Sync without batch.
-    $form_state['values'] = array();
-    drupal_form_submit('stanford_cap_api_settings_form', $form_state);
+    // $form_state['values'] = array();
+    // drupal_form_submit('stanford_cap_api_settings_form', $form_state);
+
     // drupal_form_submit('stanford_cap_api_details_form', $form_state);
     // stanford_cap_api_profiles_settings_form_submit($form, $form_state);
 
     // Before we go about syncing things lets check to see if a
     // profile is available.
 
-    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : '';
-    if (empty($full_name)) {
-      watchdog('JumpstartSitesPersonal', 'Full Name was empty. Did not import profile.', WATCHDOG_NOTICE);
-      return;
-    }
+    // $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : '';
+    // if (empty($full_name)) {
+    //   watchdog('JumpstartSitesPersonal', 'Full Name was empty. Did not import profile.', WATCHDOG_NOTICE);
+    //   $this->uninstall_cap_stuff($install_state);
+    //   $this->install_stanford_person_feature($install_state);
+    //   return;
+    // }
 
-    $form_state['values'] = array();
-    $form_state['values']['name'] = $full_name;
+    // $form = array();
+    // $form_state['values'] = array();
+    // $form_state['values']['name'] = $full_name;
 
-    drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
-    stanford_cap_api_profiles_import_result_form($form, $form_state);
+    // drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
+    // stanford_cap_api_profiles_import_result_form($form, $form_state);
 
-    if (!isset($_SESSION['search_response']['values'][0])) {
-      watchdog('JumpstartSitesPersonal', 'Did not import profile as profile not available.', WATCHDOG_NOTICE);
-      return;
-    }
+    // if (!isset($_SESSION['search_response']['values'][0])) {
+    //   watchdog('JumpstartSitesPersonal', 'Did not import profile as profile not available.', WATCHDOG_NOTICE);
+    //   $this->uninstall_cap_stuff($install_state);
+    //   $this->install_stanford_person_feature($install_state);
+    //   return;
+    // }
 
-    stanford_cap_api_profiles_get_profile_schema();
-    stanford_cap_api_profiles_synchronize_schema();
+    // Request schema data
+    // $schema = stanford_cap_api_profiles_get_profile_schema();
+    // if (!$schema) {
+    //   watchdog('JumpstartSitesPersonal', 'Could not acquire field schema data.', WATCHDOG_NOTICE);
+    //   $this->uninstall_cap_stuff($install_state);
+    //   $this->install_stanford_person_feature($install_state);
+    //   return;
+    // }
 
-    stanford_cap_api_profiles_get_orgcode_fields();
-    stanford_cap_api_orgs_import();
+    // Synchronize schema data
+    // stanford_cap_api_profiles_synchronize_schema();
 
+    // stanford_cap_api_profiles_get_orgcode_fields();
+    // stanford_cap_api_orgs_import();
+
+    drush_log('JSP - Finished sync_with_cap task.', 'status');
   }
 
   /**
-   * [cap_fetch description]
+   * Fetch the profile and create it!
+   * While fetching the profile the cap module will sync the correct fields to
+   * the content type.
    * @return [type] [description]
    */
   public function cap_fetch(&$install_state) {
-    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
+    drush_log('JSP - Started cap_fetch task.', 'status');
 
-    if (!stanford_cap_api_auth_status()) {
-      throw new Exception("Could not connect to CAP API");
-    }
+    module_load_include('inc', 'stanford_cap_api', 'stanford_cap_api.admin');
 
     $form_state = array();
     $form = array();
-    $full_name = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_name']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_name'] : '';
+    $sunetid = isset($install_state['forms']['install_configure_form']['stanford_sites_requester_sunetid']) ? $install_state['forms']['install_configure_form']['stanford_sites_requester_sunetid'] : '';
 
-    if (empty($full_name)) {
+    // Ensure we have a sunetid or we cannot get person.
+    if (empty($sunetid)) {
+      watchdog('JumpstartSitesPersonal', 'SunetID was empty. Did not import profile.', WATCHDOG_NOTICE);
+      $this->uninstall_cap_stuff($install_state);
+      $this->install_stanford_person_feature($install_state);
       return;
     }
 
+    // Look on the CAP api for a public profile that matches the name.
     $form_state['values'] = array();
-    $form_state['values']['name'] = $full_name;
-
+    $form_state['values']['sunet_id'] = $sunetid;
     drupal_form_submit('stanford_cap_api_profiles_import_form', $form_state);
     stanford_cap_api_profiles_import_result_form($form, $form_state);
 
+    // Check to see if there are results.
     $profile = FALSE;
     if (isset($_SESSION['search_response']['values'][0])) {
       $profile = $_SESSION['search_response']['values'][0];
     }
-
-    if ($profile) {
-      stanford_cap_api_profiles_profile_import($profile['profileId']);
+    else {
+      // No results? Then kick over to the stanford_person feature.
+      watchdog('JumpstartSitesPersonal', 'Did not import profile as profile not available.', WATCHDOG_NOTICE);
+      $this->uninstall_cap_stuff($install_state);
+      $this->install_stanford_person_feature($install_state);
+      return;
     }
+
+    // Import the profile.
+    stanford_cap_api_profiles_profile_import($profile['profileId']);
+
+    // If all went well then we should add the block in place.
+    module_enable(array('stanford_personal_cap_profile_block'));
+
+    drush_log('JSP - Finished cap_fetch task.', 'status');
   }
 
   // ---------------------------------------------------------------------------
+
+  /**
+   * Disable and Uninstall cap modules.
+   * @param  [type] $install_state [description]
+   * @return [type]                [description]
+   */
+  public function uninstall_cap_stuff(&$install_state) {
+    $disable = array(
+      'stanford_cap_api',
+      'stanford_cap_api_orgs',
+      'stanford_cap_api_profiles',
+      'stanford_cap_api_profiles_layout',
+      'stanford_personal_cap_settings',
+    );
+    module_disable($disable, FALSE);
+    drupal_uninstall_modules($disable, FALSE);
+  }
+
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Installs and configures the person feature. Used as a backup plan for when
+   * CAP Data is unavailable.
+   * @return [type] [description]
+   */
+  public function install_stanford_person_feature(&$install_state) {
+    drush_log('JSP - Starting install_stanford_person_feature', 'status');
+    $modules = array('stanford_person');
+    module_enable($modules);
+
+    // Import Jane Doe from the content server
+
+    // @TODO: no hard code of this.
+    $endpoint = "https://sites.stanford.edu/jsa-content/jsainstall";
+    $ids = array('985a66ed-f74f-4427-b56a-4a634bbc9e96' => array()); // Jane Doe
+    $importer = new SitesContentImporter();
+    $importer->set_endpoint($endpoint);
+    $importer->importer_process_nodes_by_uuids($ids);
+
+    drush_log('JSP - Finished install_stanford_person_feature', 'status');
+  }
+
+  // ---------------------------------------------------------------------------
+
+
 
 }
