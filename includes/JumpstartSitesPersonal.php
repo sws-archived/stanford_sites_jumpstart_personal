@@ -389,7 +389,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
     // Bean Pull.
     $uuids = array(
-      '2066e872-9547-40be-9342-dbfb81248589', // Jumpstart Footer Social Media Connect Block
+      'e51a076f-dc84-4d28-8eb8-828bc67ec0e2', // Jumpstart Footer Social Media Connect Block
       'd6312ea0-d128-4805-ad0e-fa712aa1ac40', // Stanford Personal Node Edit Help Block
       'a0188c23-cd48-4886-a1a1-15d198e5329d', // Stanford Personal Footer Block
       'd08151ab-2808-4569-9e9a-e977c2ba57c4', // Stanford Personal Sidebar Block
