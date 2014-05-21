@@ -42,9 +42,12 @@ dependencies[] = stanford_personal_roles
 dependencies[] = stanford_personal_shortcuts
 dependencies[] = stanford_personal_wysiwyg
 
+dependencies[] = stanford_personal_cap_settings
+dependencies[] = stanford_personal_cap_profile_block
+
 dependencies[] = stanford_cap_api
 dependencies[] = stanford_cap_api_profiles
-dependencies[] = stanford_cap_api_profiles_layout
+; dependencies[] = stanford_cap_api_profiles_layout
 
 ; Prohibit parent profiles from installing these modules. This will prevent the
 ; modules listed in dependencies[] only and not the ones in install tasks.
