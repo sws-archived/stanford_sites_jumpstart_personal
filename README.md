@@ -5,8 +5,17 @@ An installation profile for personal accounts.
 For more information please see:
 https://github.com/SU-SWS/stanford_sites_jumpstart/blob/7.x-3.x-dev/README.md
 
+## Installing VIA Drush
 
-Install profile for Stanford Sites.
+When installing via drush you can use the following flags
+
+    --install_configure_form.capapi_username
+    --install_configure_form.capapi_password
+    --install_configure_form.requester_sunetid
+    --install_configure_form.requester_name
+    --install_configure_form.requester_email
+
+    eg: drush si stanford_sites_jumpstart_personal [any or all of the above options]
 
 ## Installation Logic
 
@@ -26,14 +35,4 @@ The idea behind this profile is to allow children & parent profiles to add to, a
 
 See [API.md](https://github.com/SU-SWS/stanford_sites_jumpstart/blob/7.x-3.x-dev/API.md) for more.
 
-## Installing VIA Drush
 
-When installing via drush you can use the following flags
-
-    --install_configure_form.capapi_username
-    --install_configure_form.capapi_password
-    --install_configure_form.requester_sunetid
-    --install_configure_form.requester_name
-    --install_configure_form.requester_email
-
-    eg: drush si stanford_sites_jumpstart_personal [any or all of the above options]
