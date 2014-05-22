@@ -128,6 +128,14 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     );
 
+    $tasks['stanford_sites_jumpstart_personal_finished'] = array(
+      'display_name' => st('Finish Install'),
+      'display' => FALSE,
+      'type' => 'normal',
+      'function' => 'install_finished', // The name of the method in this class to run.
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+    );
+
     // Drupal does some fun things to run install tasks so we have to do some
     // extra work to ensure that they are run. Use this function to process your
     // new tasks. Do not pass in parent tasks as they have already been
@@ -217,7 +225,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     variable_set('menu_secondary_links_source', "");
 
     // Temporary until we do something else.
-    variable_set('site_frontpage', 'node/1');
+    // variable_set('site_frontpage', 'node/1');
 
     // This variable is set in the stanford installation profile and causes
     // havoc when installing through drush. Re-enable later.
@@ -670,6 +678,13 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
 
   // ---------------------------------------------------------------------------
 
-
+  /**
+   * Final Tasks before done.
+   * @param  [type] $install_state [description]
+   * @return [type]                [description]
+   */
+  public function install_finished(&$install_state) {
+    variable_set('site_frontpage', drupal_get_normal_path('home'));
+  }
 
 }
