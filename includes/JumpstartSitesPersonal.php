@@ -468,6 +468,8 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
       array("menu","menu-admin-shortcuts-ready-to-la","shortcuts-launch"),
       array("stanford_jumpstart_layouts","jumpstart-launch","shortcuts-launch-block"),
       array("menu","menu-admin-shortcuts-logout-link","shortcuts-logout"),
+      array("bean","social-media-connect-block","well"),
+      array("views","profile_blocks-block","well"),
     );
 
     // Key all the values.
