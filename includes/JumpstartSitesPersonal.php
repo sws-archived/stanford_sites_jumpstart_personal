@@ -217,6 +217,8 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
     variable_set('node_admin_theme', 'stanford_seven');
     variable_set('webauth_link_text', "SUNetID Login");
     variable_set('webauth_allow_local', 0);
+    // Disable user pictures on account page
+    variable_set('user_pictures', 0);
 
     // Set temp directory.
     file_directory_temp();
@@ -686,6 +688,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * @return [type]                [description]
    */
   public function install_finished(&$install_state) {
+    // Set the home page to the imported home page.
     variable_set('site_frontpage', drupal_get_normal_path('home'));
   }
 
