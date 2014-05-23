@@ -189,7 +189,7 @@ class JumpstartSitesPersonal extends JumpstartProfileAbstract {
    * Disable some modules.
    * @return [type] [description]
    */
-  public function disable_modules() {
+  public function disable_modules(&$install_state) {
     $modules = array('dashboard', 'search');
     module_disable($modules, FALSE);
     drush_log('JSP - Finished disable modules task.', 'status');
