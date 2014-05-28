@@ -9,11 +9,11 @@ https://github.com/SU-SWS/stanford_sites_jumpstart/blob/7.x-3.x-dev/README.md
 
 When installing via drush you can use the following flags
 
-    --install_configure_form.capapi_username
-    --install_configure_form.capapi_password
-    --install_configure_form.requester_sunetid
-    --install_configure_form.requester_name
-    --install_configure_form.requester_email
+    install_configure_form.capapi_username
+    install_configure_form.capapi_password
+    install_configure_form.requester_sunetid
+    install_configure_form.requester_name
+    install_configure_form.requester_email
 
     eg: drush si stanford_sites_jumpstart_personal [any or all of the above options]
 
