@@ -2,7 +2,7 @@ name = Stanford Sites Personal
 distribution_name = Stanford Personal
 description = Stanford Sites Personal installation profile.
 core = 7.x
-version = 7.x-1.0-alpha1
+version = 7.x-4.x
 
 ; Profile Module Requirements.
 ; Include at least one dependency to avoid installation php errors as core
