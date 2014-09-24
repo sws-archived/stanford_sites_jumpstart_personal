@@ -4,6 +4,9 @@ description = Stanford Sites Personal installation profile.
 core = 7.x
 version = 7.x-4.x
 
+; Base profile definition. This is how you declare to use other parent profiles.
+base = stanford_sites_abstract
+
 ; Profile Module Requirements.
 ; Include at least one dependency to avoid installation php errors as core
 ; expects you to have something defined even if all the parents have defined
@@ -31,10 +34,13 @@ dependencies[] = context_http_header
 dependencies[] = context_useragent
 
 dependencies[] = stanford_bean_types
+dependencies[] = stanford_bean_types_permissions
 dependencies[] = stanford_image
 dependencies[] = stanford_image_styles
 dependencies[] = stanford_page
 dependencies[] = stanford_date_timepicker
+
+dependencies[] = stanford_jumpstart_shortcuts
 
 dependencies[] = stanford_personal
 dependencies[] = stanford_personal_layouts
@@ -57,6 +63,7 @@ prohibit[] = comment
 prohibit[] = clone
 prohibit[] = overlay
 prohibit[] = dashboard
+prohibit[] = dashboard
 
 
 ; Include files. This is super important as the installation autoloader.php will
@@ -66,6 +73,3 @@ prohibit[] = dashboard
 files[] = includes/JumpstartSitesPersonal.php
 files[] = stanford_sites_jumpstart_personal.profile
 files[] = stanford_sites_jumpstart_personal.install
-
-; Base profile definition. This is how you declare to use other parent profiles.
-base = stanford_sites_abstract
